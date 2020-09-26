@@ -9,6 +9,7 @@ class Post(models.Model):#この行が"Post"というモデルを定義
     text = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
     published_date = models.DateTimeField(blank=True, null=True)
+    #video_file = models.FileField()
 
     def publish(self):
         self.published_date = timezone.now()

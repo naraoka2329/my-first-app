@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'movie.apps.BlogConfig',
-    'movie',#追加
+    'movie.apps.MovieConfig',
+    'file_upload.apps.FileUploadConfig',
+    'video.apps.VideoConfig',
 ]
 
 MIDDLEWARE = [
