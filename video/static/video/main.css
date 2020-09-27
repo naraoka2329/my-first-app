@@ -1,3 +1,67 @@
 body {
     background-color:#FFFFFF;
 }
+
+/*cssファイルのような動的に生成されないものについては
+アプリケーションのstaticフォルダに設置します。*/
+
+
+/*2カラムにするためのcss*/
+
+h4 {
+    margin: 0px;
+    padding:0px;
+}
+
+/* 左サイドバー */
+.left {
+    float: left;
+    width: 200px;
+    margin: 0px 20px 0px 5px;
+}
+.taglist{
+    margin : 0px;
+    padding: 10px 25px;
+    border: solid 1px #CCCCCC;
+}
+
+/* 真ん中 */
+.center {
+    min-width: 600px;
+    position: absolute;
+    left: 200px;
+    border: solid 1px white;
+    margin: 0px 10px 10px 20px;
+    overflow: visible;
+}
+.footer{
+    clear: both;
+    overflow :hidden;
+}
+div .content {
+    margin : 2px;
+    padding: 3px;
+    border: solid 0px #6666FF;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    min-height: 150px;
+    position: relative;
+}
+div .content:hover {
+    background-color: #DDDDFF;
+}
+div .detail {
+    min-width: 200px;
+    position: absolute;
+    left: 200px;
+    top: 0px;
+    margin: 10px 10px 10px 20px;
+    overflow: visible;
+}
+
+/* Watchページ */
+video {
+    min-width:320px;
+    min-height:240px;
+    width: 100%
+}

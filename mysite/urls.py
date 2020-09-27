@@ -21,7 +21,7 @@ from django.contrib.auth import views
 from django.views.generic.base import RedirectView
 
 import file_upload.views as file_upload
-
+import video.views as video
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,3 +35,6 @@ urlpatterns = [
     #video
     path('video/', include('video.urls')),
 ]
+
+#ストレージ領域へURLからアクセス
+#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
