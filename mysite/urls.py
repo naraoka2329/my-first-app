@@ -23,6 +23,9 @@ from django.views.generic.base import RedirectView
 import file_upload.views as file_upload
 import video.views as video
 
+from django.conf.urls.static import static
+from django.conf import settings
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/login/', views.LoginView.as_view(), name='login'),
@@ -37,4 +40,5 @@ urlpatterns = [
 ]
 
 #ストレージ領域へURLからアクセス
+#いらない？
 #urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

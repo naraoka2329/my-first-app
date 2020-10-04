@@ -1,0 +1,21 @@
+{% load static %}<!DOCTYPE html>
+<html>
+    <body>
+    <h1>Basic Upload</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="testfile">
+        <button type="submit">アップロード</button>
+    </form>
+
+{% if uploaded_file_url %}
+    <!---アップロード動画を埋め込み--->
+    <p>アップロード完了<!--<a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a>---></p>
+    <video width="200px" height="133px" src ="{{ uploaded_file_url }}" controls></video> 
+{% endif %}
+
+
+
+<p><a href="{% url 'index' %}">戻る</a></p>
+</body>
+</html>

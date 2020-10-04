@@ -126,5 +126,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 LOGIN_REDIRECT_URL = '/'
 
 # Media directory
-MEDIA_ROOT = '/storage/'
-MEDIA_URL = '/media/'
+MEDIA_URL = '/media_storage/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media_storage')

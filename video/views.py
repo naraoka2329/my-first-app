@@ -25,34 +25,35 @@ def index(request):
 #index関数ではページの情報や表示する動画のリストを用意します。
 def index(request, page=0):
     max_page = VideoContent.objects.count() // 10
-    #.values('content_id'):ビデオタグリストからIDを取得、ビデオコンテンツをアップ日順にソート、？ .order_by()[] ？
+    #VideoTagListからcontent_idで辞書のリストを取得したもの(all_content_ids)、VideoContentを-upload_dateで昇順にソート＆10ページごとにスライスして辞書のリストで取得したもの(page_contents)、
     return construct_page(request, VideoTagList.objects.values('content_id'), VideoContent.objects.order_by('-upload_date')[page*10:(page+1)*10].values(), page, max_page, 'video:index')
 
 
+#ページ作成のための関数
 def construct_page(request, all_content_ids, page_contents, current_page, max_page, url_type, url_word=''):
     # page_contents(動画)に関連するタグを抜き出し、テンプレートで使えるよう整形
     contents = []
     for item in page_contents:
         tmp_dict = item
-        #DBから関連タグを抜き出し(select_related('tag'))、page_contents内のcontent_idをfilterで抽出？
+        #VideoTaglistから'id'で検索し、'tag'で複数テーブルを同時に取得しキャッシュ(一時保存)する
         tmp_dict.update({'tags': VideoTagList.objects.filter(content_id=item['id']).select_related('tag')})
         #contentsにtemp_dictを加える
         contents.append(tmp_dict)
 
     # all_content_idsからタグを多い順で集計し、整形する
-    #annotate()：注釈をつける？
+    #annotate()：参照先テーブル集計 .name:VideoTagaNameのプロパティ
     tag_cnt = VideoTagList.objects.filter(content__in = all_content_ids).values('tag').annotate(tag_count=Count('tag')).order_by('-tag_count')[:10]
     tag_names = [VideoTagName.objects.filter(id = item.get('tag'))[0] for item in tag_cnt]
     tags = [{'name': tag_names[i].name, 'count': tag_cnt[i]["tag_count"]} for i in range(len(tag_names))]
 
-    # ページが有効な範囲をvalidでマークを付ける
+    # ページが有効な範囲を'valid'でマークを付ける
     page_list = [{'num':x, 'valid':0 <= x and x <= max_page} for x in range(current_page-5, current_page+4)]
-
+    #render(request,templateパス)：テンプレートを使用したレンダリング（抽象的なデータ集合から生成する）結果をHttpResponseとして返す
     return render(request, 'video/index.html', {'tags': tags, 'contents': contents, 'page':{'type':url_type, 'word': url_word, 'current': current_page, 'max': max_page, 'list': page_list}})
 
 #タグ検索
 def tag(request, tag_name, page=0):
-    # tag_nameからIDを探し、見つかったIDを基にタグが付いた動画をフィルタする
+    # tag_nameからIDを探し、見つかったIDを基にタグが付いた動画をフィルタする　.id .title?
     tag_id = VideoTagName.objects.filter(name=tag_name).get().id
     filtered_list = VideoTagList.objects.select_related('content').filter(tag=tag_id).order_by('-content__upload_date')
 
@@ -60,7 +61,7 @@ def tag(request, tag_name, page=0):
 
     content_list = filtered_list[page*10:(page+1)*10]
     contents = [{'id':item.content.id, 'title':item.content.title} for item in content_list]
-
+    #construct_page()（本ファイルで定義）でタグがはまるテンプレートを返す
     return construct_page(request, filtered_list.values('content_id'), contents, page, max_page, 'video:tag', tag_name)
 
 #キーワード検索
@@ -69,11 +70,12 @@ def search(request, search_word, page=0):
     max_page = filtered_list.count() // 10
     content_list = filtered_list[page*10:(page+1)*10]
     contents = [{'id':item.id, 'title':item.title} for item in content_list]
-
+    #construct()でserch_wordがはまるテンプレートを返す
     return construct_page(request, filtered_list.values('id'), contents, page, max_page, 'video:search', search_word)
 
 #検索窓からのPOSTを受け持つ処理
 def search_post(request):
+    #hasattr(たぶんhas attributte属性)：指定のオブジェクトが特定の属性を持っているか確認する
     if hasattr(request, 'POST') and 'search_text' in request.POST.keys():
         if request.POST['search_text'] != "":
             return HttpResponseRedirect(reverse('video:search', args=(request.POST['search_text'],)))
@@ -87,15 +89,20 @@ def search_post(request):
 # content.save()によりデータベースに新しくレコードを追加され、ユニークなIDが割り当てられます。
 # このIDを基に動画を保存するフォルダを作成し保存します。 
 # 正常に保存されたらmake_video_thumb関数によりサムネイルを作成します。
+
+#setting.pyのMEDIA_ROOT = '/storage/' + 'video/'をDATA_DIRに代入
 DATA_DIR = settings.MEDIA_ROOT + 'video/'
 
+#アップロードページのフォームを規定
 class VideoUploadForm(forms.Form):
+    #djangoのforms FileField():フィールドに対してファイルを操作するためのAPIを提供
     file = forms.FileField()
 
+#djangoの汎用ビューのgeneric.FormView：TemplateViewを継承したクラスで受け取ったデータの精査の成功と失敗で別々の処理をする
 class UploadView(generic.FormView):
     form_class = VideoUploadForm
     template_name = 'video/upload.html'
-
+    #有効(valid)なフォーム
     def form_valid(self, form):
         upload_filename = form.cleaned_data["file"].name
 
